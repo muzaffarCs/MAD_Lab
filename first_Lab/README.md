@@ -20,7 +20,7 @@
 
 ### App Screenshot
 
-![Running Flutter App](/Screenshot%202026-09-11%20154502.png)
+![Running Flutter App](Screenshot%202026-09-11%20154502.png)
 
 ### Reflection
 
