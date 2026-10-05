@@ -39,14 +39,37 @@ class MenuItem {
       this.price = priceFloor;
     }
   }
+
+  MenuItem.free(this.name) : price = 0;
+
+  MenuItem.fromString(String text)
+      : name = text.split(':')[0],
+        price = int.parse(text.split(':')[1]);
+
+  @override
+  String toString() => '$name (Rs $price)';
+}
+
+
+class OrderLog {
+  static OrderLog? _instance;
+  final List<String> entries = [];
+
+  OrderLog._internal();
+
+  factory OrderLog() {
+    return _instance ??= OrderLog._internal();
+  }
+
+  void add(String msg) => entries.add(msg);
 }
 
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
   step1();
   step2();
-  // step3();
-  // step4();
+  step3();
+  step4();
   // step5();
   // step6();
   // step7();
@@ -80,8 +103,44 @@ void step2() {
   print('Step 2: ${a.name} Rs ${a.price}');
   print('Step 2: Test Special Rs ${b.price}');
 }
-// void step3() { print('--- Step 3 ---'); }
-// void step4() { print('--- Step 4 ---'); }
+
+
+
+void step3() {
+  print('--- Step 3 ---');
+
+  final freebie = MenuItem.free('Water');
+  final i = (u + 2) % 10;
+  final parsed = MenuItem.fromString(
+    '${menu[i]}:${priceOf(i)}',
+  );
+
+  print('Step 3: ${freebie.name} Rs ${freebie.price}');
+  print('Step 3: ${parsed.name} Rs ${parsed.price}');
+  print('Step 3: floor=$priceFloor, free price=${freebie.price}');
+}
+
+void step4() {
+  print('--- Step 4 ---');
+
+  final log1 = OrderLog();
+  final log2 = OrderLog();
+
+  for (int i = 1; i <= u + 2; i++) {
+    final message = 'order #${100 * t + i}';
+
+    if (i.isOdd) {
+      log1.add(message);
+    } else {
+      log2.add(message);
+    }
+  }
+  print('Step 4: same object? ${identical(log1, log2)}');
+  print('Step 4: entries = ${log1.entries.length}');
+  print('Step 4: last = ${log2.entries.last}');
+}
+
+
 // void step5() { print('--- Step 5 ---'); }
 // void step6() { print('--- Step 6 ---'); }
 // void step7() { print('--- Step 7 ---'); }
