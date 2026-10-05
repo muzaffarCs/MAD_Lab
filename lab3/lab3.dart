@@ -43,8 +43,8 @@ class MenuItem {
   MenuItem.free(this.name) : price = 0;
 
   MenuItem.fromString(String text)
-      : name = text.split(':')[0],
-        price = int.parse(text.split(':')[1]);
+    : name = text.split(':')[0],
+      price = int.parse(text.split(':')[1]);
 
   @override
   String toString() => '$name (Rs $price)';
@@ -63,7 +63,6 @@ class OrderLog {
   void add(String msg) => entries.add(msg);
 }
 
-
 class OrderLine {
   final MenuItem item;
   final int qty;
@@ -71,18 +70,14 @@ class OrderLine {
   final int tax;
 
   OrderLine(this.item, this.qty)
-      : total = item.price * qty,
-        tax = item.price * qty * taxPercent ~/ 100,
-        assert(qty > 0, 'qty must be positive');
+    : total = item.price * qty,
+      tax = item.price * qty * taxPercent ~/ 100,
+      assert(qty > 0, 'qty must be positive');
 }
 
 OrderLine mainOrder() {
-  return OrderLine(
-    MenuItem(menu[u], priceOf(u)),
-    2 + (t + u) % 5,
-  );
+  return OrderLine(MenuItem(menu[u], priceOf(u)), 2 + (t + u) % 5);
 }
-
 
 extension OrderLineGetters on OrderLine {
   int get grand => total + tax;
@@ -111,6 +106,43 @@ class StudentCard {
   }
 }
 
+List<MenuItem> buildMenu() {
+  return [
+    for (int k = 0; k < 4; k++)
+      MenuItem.fromString(
+        '${menu[(u + 3 * k) % 10]}:${priceOf((u + 3 * k) % 10)}',
+      ),
+  ];
+}
+
+List<OrderLine> buildReceipt() {
+  final items = buildMenu();
+
+  return [for (int k = 0; k < 3; k++) OrderLine(items[k], 1 + (t + k) % 4)];
+}
+
+class Coupon {
+  static final Map<String, Coupon> _cache = {};
+
+  final String code;
+  final int percent;
+  final int minSpend;
+
+  Coupon(this.code, this.percent)
+    : minSpend = percent * 70,
+      assert(percent >= 1 && percent <= 50);
+
+  factory Coupon.fromCode(String code) {
+    return _cache.putIfAbsent(code, () => Coupon(code, couponPercent));
+  }
+
+  int discountOn(int amount) {
+    if (amount >= minSpend) {
+      return amount * percent ~/ 100;
+    }
+    return 0;
+  }
+}
 
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
@@ -121,9 +153,9 @@ void main() {
   step5();
   step6();
   step7();
-  // step8();
-  // step9();
-  // step10();
+  step8();
+  step9();
+  step10();
 }
 
 void step1() {
@@ -152,16 +184,12 @@ void step2() {
   print('Step 2: Test Special Rs ${b.price}');
 }
 
-
-
 void step3() {
   print('--- Step 3 ---');
 
   final freebie = MenuItem.free('Water');
   final i = (u + 2) % 10;
-  final parsed = MenuItem.fromString(
-    '${menu[i]}:${priceOf(i)}',
-  );
+  final parsed = MenuItem.fromString('${menu[i]}:${priceOf(i)}');
 
   print('Step 3: ${freebie.name} Rs ${freebie.price}');
   print('Step 3: ${parsed.name} Rs ${parsed.price}');
@@ -188,7 +216,6 @@ void step4() {
   print('Step 4: last = ${log2.entries.last}');
 }
 
-
 void step5() {
   print('--- Step 5 ---');
 
@@ -205,16 +232,13 @@ void step5() {
   }
 }
 
-
 void step6() {
   print('--- Step 6 ---');
 
   final line = mainOrder();
 
   print('Step 6: grand=${line.grand}');
-  print(
-    'Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)',
-  );
+  print('Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)');
   print('Step 6: label=${line.label}');
 }
 
@@ -236,7 +260,66 @@ void step7() {
   print('Step 7: paid order -> ${card.balance}');
 }
 
+void step8() {
+  print('--- Step 8 ---');
 
-// void step8() { print('--- Step 8 ---'); }
-// void step9() { print('--- Step 9 ---'); }
-// void step10() { print('--- Step 10 ---'); }
+  final items = buildMenu();
+
+  final priciest = items.reduce((a, b) => a.price > b.price ? a : b);
+
+  final sum = items.fold(0, (total, item) => total + item.price);
+
+  print('Step 8: menu = $items');
+  print('Step 8: priciest = ${priciest.name}');
+  print('Step 8: sum = $sum');
+}
+
+void step9() {
+  print('--- Step 9 ---');
+
+  final receipt = buildReceipt();
+  final log = OrderLog();
+  var total = 0;
+
+  for (final line in receipt) {
+    print('Step 9: ${line.label} = ${line.grand}');
+    log.add('receipt: ${line.label}');
+    total += line.grand;
+  }
+
+  print('Step 9: receipt total = $total');
+  print('Step 9: log size = ${OrderLog().entries.length}');
+}
+
+void step10() {
+  print('--- Step 10 ---');
+
+  final code = 'CAFE${seed.toString().padLeft(2, '0')}';
+
+  final c1 = Coupon.fromCode(code);
+  final c2 = Coupon.fromCode(code);
+
+  final receipt = buildReceipt().fold(0, (total, line) => total + line.grand);
+
+  final discount = c1.discountOn(receipt);
+
+  print('Step 10: $code gives ${c1.percent}% off, min spend ${c1.minSpend}');
+  print('Step 10: cached? ${identical(c1, c2)}');
+  print(
+    'Step 10: receipt $receipt, discount $discount, payable ${receipt - discount}',
+  );
+}
+
+// Q1–Q4
+
+// Q1. The shorthand saves repeated assignments from constructor parameters to fields.
+
+// Q2. Use a named constructor for another clear way to create an object.
+// Use a factory constructor when it may return an existing object or control
+// which instance is returned.
+
+// Q3. A constructor body assigns fields after initialization, while an
+// initializer list assigns fields before the constructor body runs.
+
+// Q4. A getter can calculate a value when it is needed. A setter can validate
+// or transform a value before storing it.
