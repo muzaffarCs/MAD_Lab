@@ -50,7 +50,6 @@ class MenuItem {
   String toString() => '$name (Rs $price)';
 }
 
-
 class OrderLog {
   static OrderLog? _instance;
   final List<String> entries = [];
@@ -64,15 +63,64 @@ class OrderLog {
   void add(String msg) => entries.add(msg);
 }
 
+
+class OrderLine {
+  final MenuItem item;
+  final int qty;
+  final int total;
+  final int tax;
+
+  OrderLine(this.item, this.qty)
+      : total = item.price * qty,
+        tax = item.price * qty * taxPercent ~/ 100,
+        assert(qty > 0, 'qty must be positive');
+}
+
+OrderLine mainOrder() {
+  return OrderLine(
+    MenuItem(menu[u], priceOf(u)),
+    2 + (t + u) % 5,
+  );
+}
+
+
+extension OrderLineGetters on OrderLine {
+  int get grand => total + tax;
+
+  bool get isBigOrder => grand > bigOrderLimit;
+
+  String get label => '${item.name} x$qty';
+}
+
+class StudentCard {
+  final String owner;
+  int _balance;
+
+  StudentCard(this.owner) : _balance = 0;
+
+  int get balance => _balance;
+
+  set balance(int v) {
+    if (v < 0) {
+      _balance = 0;
+    } else if (v > balanceCap) {
+      _balance = balanceCap;
+    } else {
+      _balance = v;
+    }
+  }
+}
+
+
 void main() {
   print('Seed: $seed (t=$t, u=$u)');
   step1();
   step2();
   step3();
   step4();
-  // step5();
-  // step6();
-  // step7();
+  step5();
+  step6();
+  step7();
   // step8();
   // step9();
   // step10();
@@ -141,9 +189,54 @@ void step4() {
 }
 
 
-// void step5() { print('--- Step 5 ---'); }
-// void step6() { print('--- Step 6 ---'); }
-// void step7() { print('--- Step 7 ---'); }
+void step5() {
+  print('--- Step 5 ---');
+
+  final line = mainOrder();
+
+  print('Step 5: ${line.item.name} x${line.qty}');
+  print('Step 5: total=${line.total} tax=${line.tax}');
+
+  try {
+    OrderLine(line.item, 0);
+    print('Step 5: assert did NOT fire');
+  } on AssertionError {
+    print('Step 5: assert fired');
+  }
+}
+
+
+void step6() {
+  print('--- Step 6 ---');
+
+  final line = mainOrder();
+
+  print('Step 6: grand=${line.grand}');
+  print(
+    'Step 6: big order? ${line.isBigOrder} (limit $bigOrderLimit)',
+  );
+  print('Step 6: label=${line.label}');
+}
+
+void step7() {
+  print('--- Step 7 ---');
+
+  final card = StudentCard('S$seed');
+
+  card.balance = seed * 10 + 50;
+  print('Step 7: topped up -> ${card.balance}');
+
+  card.balance = -seed - 1;
+  print('Step 7: bad value -> ${card.balance}');
+
+  card.balance = balanceCap - u;
+  print('Step 7: reset -> ${card.balance}');
+
+  card.balance = card.balance - mainOrder().grand;
+  print('Step 7: paid order -> ${card.balance}');
+}
+
+
 // void step8() { print('--- Step 8 ---'); }
 // void step9() { print('--- Step 9 ---'); }
 // void step10() { print('--- Step 10 ---'); }
