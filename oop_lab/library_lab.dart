@@ -40,10 +40,7 @@ abstract class LibraryItem {
   int lateFee(int days);
 }
 
-// step 1 question
-// item.pages is a compile error because pages is not declared in LibraryItem.
-
-class Book extends LibraryItem implements Borrowable {
+class Book extends LibraryItem with Renewable implements Borrowable {
   final int pages;
   bool _out = false;
 
@@ -84,10 +81,7 @@ Magazine mainMagazine() {
   return Magazine(titles[i], yearOf(i), 1 + (t + u) % 12);
 }
 
-// step 2 question
-// If describe is misspelled as descibe, the override will not happen and the inherited describe method will be used.
-
-class Dvd extends LibraryItem {
+class Dvd extends LibraryItem with Renewable {
   final int minutes;
 
   Dvd(super.title, super.year, this.minutes);
@@ -110,9 +104,19 @@ abstract class Borrowable {
   void giveBack();
 }
 
+mixin Renewable {
+  int renewals = 0;
 
-// Step 4 Question
-// Extending Borrowable would inherit its abstract contract but provide no ready-made method bodies, and Book already extends LibraryItem.
+  bool renew(int limit) {
+    if (renewals >= limit) {
+      return false;
+    }
+    renewals++;
+    return true;
+  }
+}
+
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 void main() {
@@ -136,12 +140,14 @@ void step1() {
   print('Step 1: ${b.title} (${b.year}), ${b.pages} pages');
   print('Step 1: stored as LibraryItem: ${item.title}');
   print('Step 1: runtimeType = ${item.runtimeType}');
+  // item.pages is a compile error because pages is not declared in LibraryItem.
 }
 
 void step2() {
   print('--- Step 2 ---');
   print('Step 2: ${mainBook().describe()}');
   print('Step 2: ${mainMagazine().describe()}');
+  // If describe is misspelled as descibe, the override will not happen and the inherited describe method will be used.
 }
 
 void step3() {
@@ -155,6 +161,7 @@ void step3() {
   print(
     'Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}',
   );
+   // An abstract class cannot be instantiated directly because its abstract methods need concrete implementations.
 }
 
 void step4() {
@@ -170,10 +177,25 @@ void step4() {
   for (final item in items) {
     print('Step 4: ${item.runtimeType} borrowable? ${item is Borrowable}');
   }
+  // Extending Borrowable would inherit its abstract contract but provide no ready-made method bodies, and Book already extends LibraryItem.
 }
 
 void step5() {
   print('--- Step 5 ---');
+  final book = mainBook();
+  var ok = 0;
+
+  for (var i = 0; i < renewAttempts; i++) {
+    if (book.renew(renewLimit)) {
+      ok++;
+    }
+  }
+
+  print('Step 5: renewed $ok of $renewAttempts attempts (limit $renewLimit)');
+  print('Step 5: renew once more? ${book.renew(renewLimit)}');
+  print('Step 5: dvd can renew too? ${mainDvd().renew(1)}');
+
+  // A mixin shares renewal behavior with Book and Dvd without giving it to Magazine.
 }
 
 void step6() {
