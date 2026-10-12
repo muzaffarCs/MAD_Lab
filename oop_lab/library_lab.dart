@@ -36,11 +36,11 @@ abstract class LibraryItem {
   final int year;
   static int created = 0;
 
-static int capFee(int fee) => fee > feeCap ? feeCap : fee;
+  static int capFee(int fee) => fee > feeCap ? feeCap : fee;
 
   LibraryItem(this.title, this.year) {
-  created++;
-}
+    created++;
+  }
   String describe() => '$title ($year)';
   int lateFee(int days);
 }
@@ -157,8 +157,7 @@ class Fine {
   bool operator >(Fine o) => amount > o.amount;
 
   @override
-  bool operator ==(Object other) =>
-      other is Fine && other.amount == amount;
+  bool operator ==(Object other) => other is Fine && other.amount == amount;
 
   @override
   int get hashCode => amount.hashCode;
@@ -183,6 +182,18 @@ List<LibraryItem> buildShelf() {
   }
 
   return shelf;
+}
+
+class Member {
+  final String name;
+  final MemberType type;
+
+  Member(this.name, this.type);
+
+  Fine feeFor(LibraryItem item, int days) {
+    final fee = LibraryItem.capFee(item.lateFee(days));
+    return Fine(type.applyDiscount(fee));
+  }
 }
 
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
@@ -281,13 +292,14 @@ void step6() {
 void step7() {
   print('--- Step 7 ---');
   final type = MemberType.values[seed % 3];
-  final discountedFee =
-      type.applyDiscount(mainBook().lateFee(daysLate));
+  final discountedFee = type.applyDiscount(mainBook().lateFee(daysLate));
   final shelf = <LibraryItem>[mainBook(), mainMagazine(), mainDvd()];
 
   print('Step 7: ${discountedFee.rs}');
   print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
-  print('Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}');
+  print(
+    'Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}',
+  );
 
   // Extensions make added behavior available directly on existing types.
 }
@@ -312,8 +324,12 @@ void step9() {
   final shelf = buildShelf();
 
   print('Step 9: items created = ${LibraryItem.created}');
-  print('Step 9: capped fee = ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap $feeCap)');
-  print('Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}');
+  print(
+    'Step 9: capped fee = ${LibraryItem.capFee(shelf.first.lateFee(daysBig))} (cap $feeCap)',
+  );
+  print(
+    'Step 9: const copies identical? ${identical(const Fine(10), const Fine(10))}',
+  );
   print('Step 9: new copies identical? ${identical(Fine(10), Fine(10))}');
 
   // Static members belong to the class and do not require an instance.
@@ -321,4 +337,20 @@ void step9() {
 
 void step10() {
   print('--- Step 10 ---');
+  final shelf = buildShelf();
+  final member = Member('S$seed', MemberType.values[seed % 3]);
+
+  final total = shelf.fold(
+    const Fine(0),
+    (sum, item) => sum + member.feeFor(item, daysLate),
+  );
+
+  final borrowable = shelf.where((item) => item is Borrowable).length;
+  final renewable = shelf.where((item) => item is Renewable).length;
+
+  print(
+    'Step 10: ${shelf.length} items, $borrowable borrowable, $renewable renewable',
+  );
+  print('Step 10: ${member.name} (${member.type.name}) owes $total');
+  print('Step 10: over the cap? ${total > Fine(feeCap)}');
 }
