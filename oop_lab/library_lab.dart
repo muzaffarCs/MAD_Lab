@@ -43,15 +43,29 @@ abstract class LibraryItem {
 // step 1 question
 // item.pages is a compile error because pages is not declared in LibraryItem.
 
-class Book extends LibraryItem {
+class Book extends LibraryItem implements Borrowable {
   final int pages;
+  bool _out = false;
 
   Book(super.title, super.year, this.pages);
 
   @override
   String describe() => '${super.describe()}, $pages pages';
   @override
-int lateFee(int days) => days * feePerDay;
+  int lateFee(int days) => days * feePerDay;
+
+  @override
+  bool get isAvailable => !_out;
+
+  @override
+  void borrow() {
+    _out = true;
+  }
+
+  @override
+  void giveBack() {
+    _out = false;
+  }
 }
 
 class Magazine extends LibraryItem {
@@ -62,7 +76,7 @@ class Magazine extends LibraryItem {
   @override
   String describe() => '${super.describe()}, issue $issue';
   @override
-int lateFee(int days) => days * (feePerDay ~/ 2);
+  int lateFee(int days) => days * (feePerDay ~/ 2);
 }
 
 Magazine mainMagazine() {
@@ -72,7 +86,6 @@ Magazine mainMagazine() {
 
 // step 2 question
 // If describe is misspelled as descibe, the override will not happen and the inherited describe method will be used.
-
 
 class Dvd extends LibraryItem {
   final int minutes;
@@ -91,6 +104,15 @@ Dvd mainDvd() {
   return Dvd(titles[i], yearOf(i), 90 + seed % 40);
 }
 
+abstract class Borrowable {
+  bool get isAvailable;
+  void borrow();
+  void giveBack();
+}
+
+
+// Step 4 Question
+// Extending Borrowable would inherit its abstract contract but provide no ready-made method bodies, and Book already extends LibraryItem.
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 void main() {
@@ -124,13 +146,30 @@ void step2() {
 
 void step3() {
   print('--- Step 3 ---');
-  print('Step 3: Book late fee for $daysLate days = ${mainBook().lateFee(daysLate)}');
-  print('Step 3: Magazine late fee for $daysLate days = ${mainMagazine().lateFee(daysLate)}');
-  print('Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}');
+  print(
+    'Step 3: Book late fee for $daysLate days = ${mainBook().lateFee(daysLate)}',
+  );
+  print(
+    'Step 3: Magazine late fee for $daysLate days = ${mainMagazine().lateFee(daysLate)}',
+  );
+  print(
+    'Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}',
+  );
 }
 
 void step4() {
   print('--- Step 4 ---');
+  final book = mainBook();
+  print('Step 4: available? ${book.isAvailable}');
+  book.borrow();
+  print('Step 4: after borrow? ${book.isAvailable}');
+  book.giveBack();
+  print('Step 4: after return? ${book.isAvailable}');
+
+  final items = <LibraryItem>[book, mainMagazine(), mainDvd()];
+  for (final item in items) {
+    print('Step 4: ${item.runtimeType} borrowable? ${item is Borrowable}');
+  }
 }
 
 void step5() {
