@@ -129,6 +129,19 @@ enum MemberType {
   int applyDiscount(int fee) => fee - (fee * discountPercent ~/ 100);
 }
 
+extension MoneyText on int {
+  String get rs => 'Rs $this';
+}
+
+extension Initials on String {
+  String get initials => split(' ').map((w) => w[0]).join();
+}
+
+extension ShelfMath on List<LibraryItem> {
+  int totalLateFee(int days) =>
+      fold(0, (sum, item) => sum + item.lateFee(days));
+}
+
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
 void main() {
@@ -224,6 +237,16 @@ void step6() {
 
 void step7() {
   print('--- Step 7 ---');
+  final type = MemberType.values[seed % 3];
+  final discountedFee =
+      type.applyDiscount(mainBook().lateFee(daysLate));
+  final shelf = <LibraryItem>[mainBook(), mainMagazine(), mainDvd()];
+
+  print('Step 7: ${discountedFee.rs}');
+  print('Step 7: initials of "${titles[u]}" = ${titles[u].initials}');
+  print('Step 7: shelf fee for $daysLate days = ${shelf.totalLateFee(daysLate).rs}');
+
+  // Extensions make added behavior available directly on existing types.
 }
 
 void step8() {
