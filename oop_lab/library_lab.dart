@@ -116,6 +116,18 @@ mixin Renewable {
   }
 }
 
+enum MemberType {
+  student(3, 50),
+  faculty(10, 20),
+  guest(1, 0);
+
+  final int maxLoans;
+  final int discountPercent;
+
+  const MemberType(this.maxLoans, this.discountPercent);
+
+  int applyDiscount(int fee) => fee - (fee * discountPercent ~/ 100);
+}
 
 Book mainBook() => Book(titles[u], yearOf(u), 100 + 3 * seed);
 
@@ -161,7 +173,7 @@ void step3() {
   print(
     'Step 3: Dvd late fee for $daysLate days = ${mainDvd().lateFee(daysLate)}',
   );
-   // An abstract class cannot be instantiated directly because its abstract methods need concrete implementations.
+  // An abstract class cannot be instantiated directly because its abstract methods need concrete implementations.
 }
 
 void step4() {
@@ -200,6 +212,14 @@ void step5() {
 
 void step6() {
   print('--- Step 6 ---');
+  final type = MemberType.values[seed % 3];
+  final fee = mainBook().lateFee(daysLate);
+
+  print('Step 6: member type = ${type.name} (index ${type.index})');
+  print('Step 6: max loans = ${type.maxLoans}');
+  print('Step 6: book fee $fee -> ${type.applyDiscount(fee)} after discount');
+
+  // Enum values prevent arbitrary or misspelled member-type strings.
 }
 
 void step7() {
