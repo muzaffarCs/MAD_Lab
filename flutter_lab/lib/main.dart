@@ -1,5 +1,4 @@
-
- // main.dart - Study Tracker lab
+// main.dart - Study Tracker lab
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -73,6 +72,8 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Tally(),
+            const SizedBox(height: 12),
+            const Countdown(),
             const SizedBox(height: 12),
             const BuggyCounter(),
           ],
@@ -194,6 +195,51 @@ class _TallyState extends State<Tally> {
         ),
       ],
     );
+  }
+}
+
+class Countdown extends StatefulWidget {
+  const Countdown({super.key});
+
+  @override
+  State<Countdown> createState() => _CountdownState();
+}
+
+class _CountdownState extends State<Countdown> {
+  late int _left;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _left = startSeconds;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_left > 0) {
+        setState(() {
+          _left--;
+        });
+      }
+
+      if (_left <= 0) {
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_left > 0) {
+      return Text('Time left: $_left s', key: const Key('time-left'));
+    }
+
+    return const Text('Time is up!', key: Key('time-left'));
   }
 }
 
