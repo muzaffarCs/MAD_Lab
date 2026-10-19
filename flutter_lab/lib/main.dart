@@ -55,7 +55,24 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Study Tracker: $course')),
-      body: StudentCard(name: studentName, roll: rollNo, course: course),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StudentCard(name: studentName, roll: rollNo, course: course),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Start: $startCount', key: const Key('info-start')),
+                Text('Step: $stepSize', key: const Key('info-step')),
+                Text('Max: $maxCount', key: const Key('info-max')),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
