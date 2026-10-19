@@ -1,4 +1,5 @@
-// main.dart - Study Tracker lab
+
+ // main.dart - Study Tracker lab
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -72,6 +73,8 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Tally(),
+            const SizedBox(height: 12),
+            const BuggyCounter(),
           ],
         ),
       ),
@@ -138,7 +141,9 @@ class _TallyState extends State<Tally> {
 
   void _plus() {
     setState(() {
-      _count += stepSize;
+      if (_count + stepSize <= maxCount) {
+        _count += stepSize;
+      }
     });
   }
 
@@ -159,26 +164,33 @@ class _TallyState extends State<Tally> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Count: $_count', key: const Key('count')),
+        const SizedBox(height: 8),
         GoalBanner(count: _count, max: maxCount),
-        ElevatedButton(
-          key: const Key('plus'),
-          onPressed: _plus,
-          child: Text('+$stepSize'),
-        ),
-        const SizedBox(width: 8),
-        ElevatedButton(
-          key: const Key('minus'),
-          onPressed: _minus,
-          child: Text('-$stepSize'),
-        ),
-        const SizedBox(width: 8),
-        OutlinedButton(
-          key: const Key('reset'),
-          onPressed: _reset,
-          child: const Text('Reset'),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            ElevatedButton(
+              key: const Key('plus'),
+              onPressed: _plus,
+              child: Text('+$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              key: const Key('minus'),
+              onPressed: _minus,
+              child: Text('-$stepSize'),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              key: const Key('reset'),
+              onPressed: _reset,
+              child: const Text('Reset'),
+            ),
+          ],
         ),
       ],
     );
@@ -205,7 +217,9 @@ class _BuggyCounterState extends State<BuggyCounter> {
         ElevatedButton(
           key: const Key('bug-button'),
           onPressed: () {
-            _clicks += bugStep;
+            setState(() {
+              _clicks += bugStep;
+            });
           },
           child: Text('+$bugStep'),
         ),
