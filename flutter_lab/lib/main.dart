@@ -211,54 +211,46 @@ class _CountdownState extends State<Countdown> {
   int _builds = 0;
 
   @override
- @override
-void initState() {
-  super.initState();
-  lifecycleLog.add('initState');
-  _left = startSeconds;
+  void initState() {
+    super.initState();
+    lifecycleLog.add('initState');
+    _left = startSeconds;
 
-  _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-    if (_left > 0) {
-      setState(() {
-        _left--;
-      });
-    }
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_left > 0) {
+        setState(() {
+          _left--;
+        });
+      }
 
-    if (_left <= 0) {
-      timer.cancel();
-    }
-  });
-}
+      if (_left <= 0) {
+        timer.cancel();
+      }
+    });
+  }
 
   @override
-@override
-void dispose() {
-  _timer.cancel();
-  lifecycleLog.add('dispose');
-  super.dispose();
-}
+  void dispose() {
+    _timer.cancel();
+    lifecycleLog.add('dispose');
+    super.dispose();
+  }
 
-@override
-Widget build(BuildContext context) {
-  _builds++;
+  @override
+  Widget build(BuildContext context) {
+    _builds++;
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (_left > 0)
-        Text(
-          'Time left: $_left s',
-          key: const Key('time-left'),
-        )
-      else
-        const Text(
-          'Time is up!',
-          key: Key('time-left'),
-        ),
-      Text('Builds: $_builds', key: const Key('builds')),
-    ],
-  );
-}
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_left > 0)
+          Text('Time left: $_left s', key: const Key('time-left'))
+        else
+          const Text('Time is up!', key: Key('time-left')),
+        Text('Builds: $_builds', key: const Key('builds')),
+      ],
+    );
+  }
 }
 
 // ---- Provided for Step 7. It has a bug on purpose. Do not rename anything.
