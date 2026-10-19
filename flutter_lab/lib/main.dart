@@ -208,39 +208,57 @@ class Countdown extends StatefulWidget {
 class _CountdownState extends State<Countdown> {
   late int _left;
   late Timer _timer;
+  int _builds = 0;
 
   @override
-  void initState() {
-    super.initState();
-    _left = startSeconds;
+ @override
+void initState() {
+  super.initState();
+  lifecycleLog.add('initState');
+  _left = startSeconds;
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_left > 0) {
-        setState(() {
-          _left--;
-        });
-      }
-
-      if (_left <= 0) {
-        timer.cancel();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
     if (_left > 0) {
-      return Text('Time left: $_left s', key: const Key('time-left'));
+      setState(() {
+        _left--;
+      });
     }
 
-    return const Text('Time is up!', key: Key('time-left'));
-  }
+    if (_left <= 0) {
+      timer.cancel();
+    }
+  });
+}
+
+  @override
+@override
+void dispose() {
+  _timer.cancel();
+  lifecycleLog.add('dispose');
+  super.dispose();
+}
+
+@override
+Widget build(BuildContext context) {
+  _builds++;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (_left > 0)
+        Text(
+          'Time left: $_left s',
+          key: const Key('time-left'),
+        )
+      else
+        const Text(
+          'Time is up!',
+          key: Key('time-left'),
+        ),
+      Text('Builds: $_builds', key: const Key('builds')),
+    ],
+  );
+}
 }
 
 // ---- Provided for Step 7. It has a bug on purpose. Do not rename anything.
