@@ -142,10 +142,24 @@ class _TallyState extends State<Tally> {
     });
   }
 
+  void _minus() {
+    setState(() {
+      _count -= stepSize;
+      if (_count < 0) {
+        _count = 0;
+      }
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      _count = startCount;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
         Text('Count: $_count', key: const Key('count')),
         GoalBanner(count: _count, max: maxCount),
@@ -153,6 +167,18 @@ class _TallyState extends State<Tally> {
           key: const Key('plus'),
           onPressed: _plus,
           child: Text('+$stepSize'),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          key: const Key('minus'),
+          onPressed: _minus,
+          child: Text('-$stepSize'),
+        ),
+        const SizedBox(width: 8),
+        OutlinedButton(
+          key: const Key('reset'),
+          onPressed: _reset,
+          child: const Text('Reset'),
         ),
       ],
     );
