@@ -121,6 +121,8 @@ class HomePage extends StatelessWidget {
             const ShareRow(),
             const SizedBox(height: 12),
             const InfoBox(),
+            const SizedBox(height: 12),
+            const StampStack(),
           ],
         ),
       ),
@@ -429,6 +431,38 @@ class InfoBox extends StatelessWidget {
         border: Border.all(width: boxBorder),
       ),
       child: Text('Course: $course', key: const Key('box-text')),
+    );
+  }
+}
+
+// The Stack's size is determined by its constraints and non-positioned children.
+// The first child is the bottom layer; putting the grey Container last would paint it over the Icons.
+
+class StampStack extends StatelessWidget {
+  const StampStack({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      key: const Key('stack'),
+      children: [
+        Container(
+          key: const Key('layer-base'),
+          width: 300,
+          height: 120,
+          color: Colors.grey.shade300,
+        ),
+        Positioned(
+          top: dotTop,
+          right: dotRight,
+          child: const Icon(Icons.star, key: Key('dot-top')),
+        ),
+        Positioned(
+          bottom: dotBottom,
+          left: dotLeft,
+          child: const Icon(Icons.circle, key: Key('dot-bottom')),
+        ),
+      ],
     );
   }
 }
