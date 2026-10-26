@@ -209,8 +209,55 @@ class _ClockState extends State<Clock> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Session: $_seconds s', key: const Key('clock')),
-        Text('Builds: $_builds', key: const Key('builds')),
+        Text(
+          'Session: $_seconds s',
+          key: const Key('clock'),
+        ),
+        Text(
+          'Builds: $_builds',
+          key: const Key('builds'),
+        ),
+        Probe(seconds: _seconds),
+      ],
+    );
+  }
+}
+
+// Widget objects are recreated during rebuilds, while Elements keep their identity and manage State.
+// RenderObjects handle layout, painting and hit testing.
+
+class Probe extends StatelessWidget {
+  final int seconds;
+
+  const Probe({super.key, required this.seconds});
+
+  @override
+  Widget build(BuildContext context) {
+    final above = context.findAncestorWidgetOfExactType<Scaffold>() != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Seen at: $seconds s',
+          key: const Key('probe-seen'),
+        ),
+        Text(
+          'Widget #${identityHashCode(this)}',
+          key: const Key('probe-widget'),
+        ),
+        Text(
+          'Element #${identityHashCode(context)}',
+          key: const Key('probe-element'),
+        ),
+        Text(
+          'Context belongs to: ${context.widget.runtimeType}',
+          key: const Key('probe-context'),
+        ),
+        Text(
+          'Scaffold above me: $above',
+          key: const Key('probe-above'),
+        ),
       ],
     );
   }
