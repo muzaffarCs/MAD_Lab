@@ -112,7 +112,7 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 12),
             const Clock(),
             const SizedBox(height: 12),
-            Row(children: [Tile(tileA), Tile(tileB), Tile(tileC)]),
+            const SwapBoard(),
           ],
         ),
       ),
@@ -283,6 +283,41 @@ class _TileState extends State<Tile> {
         setState(() => taps++);
       },
       child: Text('${widget.label}: $taps'),
+    );
+  }
+}
+
+// Without keys, Flutter matches same-type widgets by position, so the Element and State can remain
+// at the old position while the labels change. ValueKeys let State follow the matching tile.
+
+class SwapBoard extends StatefulWidget {
+  const SwapBoard({super.key});
+
+  @override
+  State<SwapBoard> createState() => _SwapBoardState();
+}
+
+class _SwapBoardState extends State<SwapBoard> {
+  var tiles = [
+    Tile(tileA, key: ValueKey(tileA)),
+    Tile(tileB, key: ValueKey(tileB)),
+    Tile(tileC, key: ValueKey(tileC)),
+  ];
+
+  void swap() => setState(() => tiles = tiles.reversed.toList());
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: tiles),
+        ElevatedButton(
+          key: const Key('swap'),
+          onPressed: swap,
+          child: const Text('Swap'),
+        ),
+      ],
     );
   }
 }
